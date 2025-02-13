@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import os
 
+st.set_page_config(layout='wide')
 # Função para carregar shapefile
 def carregar_shapefile(caminho, calcular_percentuais=True):
     gdf = gpd.read_file(caminho)
@@ -293,8 +294,6 @@ pie_fig.update_layout(
     title_font=dict(size=22),
 )
 
-# wide mode 
-st.set_page_config(layout='wide')
 # Título do dashboard
 st.title("Dashboard de Monitoramento")
 # Seleção da área no sidebar
