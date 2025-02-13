@@ -295,8 +295,9 @@ pie_fig.update_layout(
 
 # Título do dashboard
 st.title("Dashboard de Monitoramento")
-
+st.set_page_config(layout='wide')
 # Seleção da área no sidebar
+
 invadindo_opcao = st.sidebar.selectbox("Selecione a área (invadindo)", opcoes_invadindo)
 
 # Layout em duas colunas
