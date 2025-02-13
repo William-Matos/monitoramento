@@ -84,6 +84,23 @@ def criar_figura(ids_selecionados=None, invadindo_opcao=None):
         )
         for trace in fig_sel.data:
             fig.add_trace(trace)
+    if invadindo_opcao is not None:
+        if invadindo_opcao.lower() == "todos":
+            gdf_sigef_filtrado = gdf_sigef
+        else:
+            gdf_sigef_filtrado = gdf_sigef[gdf_sigef["invadindo"].str.strip().str.lower() == invadindo_opcao.strip().lower()]
+        trace_sigef = go.Choroplethmapbox(
+            geojson=gdf_sigef_filtrado.__geo_interface__,
+            locations=gdf_sigef_filtrado["id"],
+            z=[1] * len(gdf_sigef_filtrado),
+            colorscale=[[0, "#FF4136"], [1, "#FF4136"]],
+            marker_opacity=0.5,
+            marker_line_width=1,
+            name="SIGEF",
+            showlegend=True,
+            showscale=False
+        )
+        fig.add_trace(trace_sigef)
     if "Município" in df_csv.columns:
         cidades = df_csv["Município"].unique()
         cores_paleta = px.colors.qualitative.Pastel
@@ -162,6 +179,7 @@ def criar_figura(ids_selecionados=None, invadindo_opcao=None):
         title_font=dict(size=22),
     )
     return fig
+    
 st.markdown(
     """
     <style>
