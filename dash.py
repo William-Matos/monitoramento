@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 # Função para carregar shapefile
 def carregar_shapefile(caminho, calcular_percentuais=True):
     gdf = gpd.read_file(caminho)
-    gdf["geometry"] = gdf["geometry"].apply(lambda geom: geom.buffer(0) if not geom.is_valid else geom)
+    gdf["geometry"] = gdf["geometry"].apply(lambda geom: geom.buffer(0) if not geom.is_valid else geom
     gdf = gdf[gdf["geometry"].notnull() & gdf["geometry"].is_valid]
     gdf_proj = gdf.to_crs("EPSG:31983")
     gdf_proj["area_calc_km2"] = gdf_proj.geometry.area / 1e6
@@ -32,11 +32,6 @@ def carregar_shapefile(caminho, calcular_percentuais=True):
     gdf = gdf.to_crs("EPSG:4326")
     return gdf
 
-# Caminhos dos arquivos
-# caminho_shapefile_cnuc = r'C:\Users\wwrm_\Desktop\Projetos\exec\cnuc.shp'
-# caminho_shapefile_sigef = r'C:\Users\wwrm_\Desktop\Projetos\exec\sigef.shp'
-# caminho_csv = r'C:\Users\wwrm_\Desktop\Projetos\exec\CPT-PA-count.csv'
-
 # Carregar dados
 gdf_cnuc = carregar_shapefile('cnuc.shp')
 gdf_sigef = carregar_shapefile('sigef.shp', calcular_percentuais=False)
@@ -54,7 +49,7 @@ colunas_ocorrencias = ["Áreas de conflitos", "Assassinatos", "Conflitos por Ter
 df_csv["total_ocorrencias"] = df_csv[colunas_ocorrencias].sum(axis=1)
 
 # Função para criar o mapa
-def criar_figura(ids_selecionados=None, invadindo_opcao=None):
+def criar_figura(ids_selecionados=None):
     fig = px.choropleth_mapbox(
         gdf_cnuc,
         geojson=gdf_cnuc.__geo_interface__,
@@ -82,23 +77,6 @@ def criar_figura(ids_selecionados=None, invadindo_opcao=None):
         )
         for trace in fig_sel.data:
             fig.add_trace(trace)
-    if invadindo_opcao is not None:
-        if invadindo_opcao.lower() == "todos":
-            gdf_sigef_filtrado = gdf_sigef
-        else:
-            gdf_sigef_filtrado = gdf_sigef[gdf_sigef["invadindo"].str.strip().str.lower() == invadindo_opcao.strip().lower()]
-        trace_sigef = go.Choroplethmapbox(
-            geojson=gdf_sigef_filtrado.__geo_interface__,
-            locations=gdf_sigef_filtrado["id"],
-            z=[1] * len(gdf_sigef_filtrado),
-            colorscale=[[0, "#FF4136"], [1, "#FF4136"]],
-            marker_opacity=0.5,
-            marker_line_width=1,
-            name="SIGEF",
-            showlegend=True,
-            showscale=False
-        )
-        fig.add_trace(trace_sigef)
     if "Município" in df_csv.columns:
         cidades = df_csv["Município"].unique()
         cores_paleta = px.colors.qualitative.Pastel
@@ -179,26 +157,24 @@ def criar_figura(ids_selecionados=None, invadindo_opcao=None):
     return fig
 
 # Função para criar os cards
-# Estilizar os cards usando CSS
-# Estilizar os cards usando CSS para exibição lado a lado
 st.markdown(
     """
     <style>
     .cards-container {
         display: flex;
-        justify-content: space-between; /* Ajusta o espaçamento entre os cards */
-        flex-wrap: nowrap; /* Impede que os cards quebrem para a próxima linha */
-        overflow-x: auto; /* Adiciona scroll horizontal se necessário */
-        gap: 10px; /* Espaçamento entre os cards */
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 10px;
     }
     .card {
         padding: 15px;
         border-radius: 10px;
-        background-color: #f0f2f6; /* Cor de fundo do card */
+        background-color: #f0f2f6;
         text-align: center;
         box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-        flex: 1 1 auto; /* Faz os cards terem tamanhos flexíveis */
-        min-width: 150px; /* Define um tamanho mínimo para cada card */
+        flex: 1 1 auto;
+        min-width: 150px;
     }
     .card h3 {
         margin-bottom: 5px;
@@ -250,13 +226,6 @@ def criar_cards(ids_selecionados=None):
     """, unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
-    
-# Função para obter o filtro de "invadindo"
-def get_invadindo_filtro(value):
-    return value
-
-# Opções para o filtro de "invadindo"
-opcoes_invadindo = ["Todos"] + sorted(gdf_sigef["invadindo"].unique().tolist())
 
 # Criar gráficos
 bar_fig = px.bar(
@@ -273,7 +242,7 @@ bar_fig = px.bar(
 )
 bar_fig.update_layout(
     legend_title_text='Métricas',
-    height=500,  # Aumentar a altura do gráfico de barras
+    height=500,
     margin={"r": 10, "t": 50, "l": 10, "b": 10},
     title_font=dict(size=22),
     title='Contagem das Áreas de Proteção'
@@ -289,7 +258,7 @@ pie_fig = px.pie(
 pie_fig.update_traces(textposition='inside', textinfo='percent+label')
 pie_fig.update_layout(
     font_size=14,
-    height=500,  # Aumentar a altura do gráfico de pizza
+    height=500,
     margin={"r": 10, "t": 50, "l": 10, "b": 10},
     title_font=dict(size=22),
 )
@@ -297,18 +266,13 @@ pie_fig.update_layout(
 # Título do dashboard
 st.title("Dashboard de Monitoramento")
 
-# Seleção da área no sidebar
-invadindo_opcao = st.sidebar.selectbox("Selecione a área (invadindo)", opcoes_invadindo)
-
 # Layout em duas colunas
-col1, col2 = st.columns([2, 1])  # Ajuste a proporção das colunas
+col1, col2 = st.columns([2, 1])
 
 # Coluna 1: Mapa e cards
 with col1:
-    # Mostrar o mapa
-    fig = criar_figura(invadindo_opcao=invadindo_opcao)
+    fig = criar_figura()
     st.plotly_chart(fig, use_container_width=True)
-    # Mostrar os cards
     criar_cards()
 
 # Coluna 2: Gráficos
