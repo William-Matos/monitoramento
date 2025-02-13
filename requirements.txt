@@ -3,5 +3,3 @@ plotly
 pandas
 streamlit
 shapely
-plotly.express
-plotly.graph_objects
