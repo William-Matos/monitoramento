@@ -228,6 +228,8 @@ def criar_cards(ids_selecionados=None):
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Criar gráficos
+gdf_sigef = gdf_sigef.fillna("Desconhecido")
+
 bar_fig = px.bar(
     gdf_cnuc,
     x='nome_uc',
