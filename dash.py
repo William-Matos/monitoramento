@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+# Função para carregar shapefile
 def carregar_shapefile(caminho, calcular_percentuais=True):
     gdf = gpd.read_file(caminho)
     gdf["geometry"] = gdf["geometry"].apply(lambda geom: geom.buffer(0) if not geom.is_valid else geom)
@@ -31,23 +32,28 @@ def carregar_shapefile(caminho, calcular_percentuais=True):
     gdf = gdf.to_crs("EPSG:4326")
     return gdf
 
+# Caminhos dos arquivos
 caminho_shapefile_cnuc = r'C:\Users\wwrm_\Desktop\Projetos\exec\cnuc.shp'
 caminho_shapefile_sigef = r'C:\Users\wwrm_\Desktop\Projetos\exec\sigef.shp'
 caminho_csv = r'C:\Users\wwrm_\Desktop\Projetos\exec\CPT-PA-count.csv'
+
+# Carregar dados
 gdf_cnuc = carregar_shapefile(caminho_shapefile_cnuc)
 gdf_sigef = carregar_shapefile(caminho_shapefile_sigef, calcular_percentuais=False)
 df_csv = pd.read_csv(caminho_csv)
 gdf_cnuc["base"] = "cnuc"
 gdf_sigef["base"] = "sigef"
 
+# Calcular centro do mapa
 limites = gdf_cnuc.total_bounds
 centro = {"lat": (limites[1] + limites[3]) / 2, "lon": (limites[0] + limites[2]) / 2}
 
-df_csv = pd.read_csv(caminho_csv)
+# Processar CSV
 df_csv = df_csv.rename(columns={"Unnamed: 0": "Município"})
 colunas_ocorrencias = ["Áreas de conflitos", "Assassinatos", "Conflitos por Terra", "Ocupações Retomadas", "Tentativas de Assassinatos", "Trabalho Escravo"]
 df_csv["total_ocorrencias"] = df_csv[colunas_ocorrencias].sum(axis=1)
 
+# Função para criar o mapa
 def criar_figura(ids_selecionados=None, invadindo_opcao=None):
     fig = px.choropleth_mapbox(
         gdf_cnuc,
@@ -71,8 +77,8 @@ def criar_figura(ids_selecionados=None, invadindo_opcao=None):
             hover_data=["nome_uc", "municipio", "perc_alerta", "perc_sigef", "alerta_km2", "sigef_km2", "area_km2"],
             mapbox_style="open-street-map",
             center=centro,
-            zoom=4,
-            opacity=0.8,
+            zoom=10,
+            opacity=0.6,
         )
         for trace in fig_sel.data:
             fig.add_trace(trace)
@@ -166,11 +172,46 @@ def criar_figura(ids_selecionados=None, invadindo_opcao=None):
     fig.update_layout(
         coloraxis_showscale=False,
         legend=dict(title="Legenda", x=0, y=1),
-        height=700,
+        height=700,  # Aumentar a altura do mapa
         margin={"r": 10, "t": 50, "l": 10, "b": 10},
         title_font=dict(size=22),
     )
     return fig
+
+# Função para criar os cards
+# Estilizar os cards usando CSS
+# Estilizar os cards usando CSS para exibição lado a lado
+st.markdown(
+    """
+    <style>
+    .cards-container {
+        display: flex;
+        justify-content: space-between; /* Ajusta o espaçamento entre os cards */
+        flex-wrap: nowrap; /* Impede que os cards quebrem para a próxima linha */
+        overflow-x: auto; /* Adiciona scroll horizontal se necessário */
+        gap: 10px; /* Espaçamento entre os cards */
+    }
+    .card {
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f0f2f6; /* Cor de fundo do card */
+        text-align: center;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        flex: 1 1 auto; /* Faz os cards terem tamanhos flexíveis */
+        min-width: 150px; /* Define um tamanho mínimo para cada card */
+    }
+    .card h3 {
+        margin-bottom: 5px;
+        font-size: 18px;
+    }
+    .card p {
+        font-size: 24px;
+        font-weight: bold;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 def criar_cards(ids_selecionados=None):
     filtro = gdf_cnuc[gdf_cnuc["id"].isin(ids_selecionados)] if ids_selecionados else gdf_cnuc
@@ -180,22 +221,44 @@ def criar_cards(ids_selecionados=None):
     perc_alerta = (total_alerta / total_area * 100) if total_area else 0
     perc_sigef = (total_sigef / total_area * 100) if total_area else 0
     total_unidades = filtro.shape[0]
-    estilo_card = {"backgroundColor": "#0074D9", "color": "white", "padding": "10px", "borderRadius": "5px", "textAlign": "center", "width": "150px", "height": "150px", "margin": "5px", "display": "flex", "flexDirection": "column", "justifyContent": "center", "alignItems": "center", "boxSizing": "border-box", "overflow": "hidden"}
-    cartoes_shapefile = st.columns(3)
-    cartoes_shapefile[0].metric("Percentual de Alerta", f"{perc_alerta:.2f}%")
-    cartoes_shapefile[1].metric("Percentual SIGEF", f"{perc_sigef:.2f}%")
-    cartoes_shapefile[2].metric("Total de Unidades", f"{total_unidades}")
     contagem_alerta = filtro["c_alertas"].sum()
     contagem_sigef = filtro["c_sigef"].sum()
-    cartoes_contagens = st.columns(2)
-    cartoes_contagens[0].metric("Contagem Alerta", f"{contagem_alerta}")
-    cartoes_contagens[1].metric("Contagem SIGEF", f"{contagem_sigef}")
 
+    st.markdown('<div class="cards-container">', unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div class="card">
+        <h3>Percentual de Alerta</h3>
+        <p>{perc_alerta:.2f}%</p>
+    </div>
+    <div class="card">
+        <h3>Percentual SIGEF</h3>
+        <p>{perc_sigef:.2f}%</p>
+    </div>
+    <div class="card">
+        <h3>Total de Unidades</h3>
+        <p>{total_unidades}</p>
+    </div>
+    <div class="card">
+        <h3>Contagem Alerta</h3>
+        <p>{contagem_alerta}</p>
+    </div>
+    <div class="card">
+        <h3>Contagem SIGEF</h3>
+        <p>{contagem_sigef}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+# Função para obter o filtro de "invadindo"
 def get_invadindo_filtro(value):
     return value
 
+# Opções para o filtro de "invadindo"
 opcoes_invadindo = ["Todos"] + sorted(gdf_sigef["invadindo"].unique().tolist())
 
+# Criar gráficos
 bar_fig = px.bar(
     gdf_cnuc,
     x='nome_uc',
@@ -208,29 +271,47 @@ bar_fig = px.bar(
         "area_km2": px.colors.qualitative.Pastel[2]
     }
 )
-bar_fig.update_layout(legend_title_text='Métricas')
+bar_fig.update_layout(
+    legend_title_text='Métricas',
+    height=500,  # Aumentar a altura do gráfico de barras
+    margin={"r": 10, "t": 50, "l": 10, "b": 10},
+    title_font=dict(size=22),
+    title='Contagem das Áreas de Proteção'
+)
 
 pie_fig = px.pie(
     df_csv,
     values='Áreas de conflitos',
     names='Município',
     title='Áreas de conflitos',
-    color_discrete_sequence=px.colors.qualitative.Pastel
+    color_discrete_sequence=px.colors.qualitative.Pastel,
 )
 pie_fig.update_traces(textposition='inside', textinfo='percent+label')
-pie_fig.update_layout(font_size=14)
+pie_fig.update_layout(
+    font_size=14,
+    height=500,  # Aumentar a altura do gráfico de pizza
+    margin={"r": 10, "t": 50, "l": 10, "b": 10},
+    title_font=dict(size=22),
+)
 
+# Título do dashboard
 st.title("Dashboard de Monitoramento")
 
-invadindo_opcao = st.selectbox("Selecione a área (invadindo)", opcoes_invadindo)
+# Seleção da área no sidebar
+invadindo_opcao = st.sidebar.selectbox("Selecione a área (invadindo)", opcoes_invadindo)
 
-fig = criar_figura(invadindo_opcao=invadindo_opcao)
-st.plotly_chart(fig, use_container_width=True)
+# Layout em duas colunas
+col1, col2 = st.columns([2, 1])  # Ajuste a proporção das colunas
 
-criar_cards()
-
-col1, col2 = st.columns(2)
+# Coluna 1: Mapa e cards
 with col1:
-    st.plotly_chart(bar_fig, use_container_width=True)
+    # Mostrar o mapa
+    fig = criar_figura(invadindo_opcao=invadindo_opcao)
+    st.plotly_chart(fig, use_container_width=True)
+    # Mostrar os cards
+    criar_cards()
+
+# Coluna 2: Gráficos
 with col2:
+    st.plotly_chart(bar_fig, use_container_width=True)
     st.plotly_chart(pie_fig, use_container_width=True)
