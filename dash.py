@@ -162,26 +162,24 @@ def criar_figura(ids_selecionados=None):
         title_font=dict(size=22),
     )
     return fig
-
-# Função para criar os cards
 st.markdown(
     """
     <style>
     .cards-container {
         display: flex;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 10px;
+        justify-content: space-between; /* Ajusta o espaçamento entre os cards */
+        flex-wrap: nowrap; /* Impede que os cards quebrem para a próxima linha */
+        overflow-x: auto; /* Adiciona scroll horizontal se necessário */
+        gap: 10px; /* Espaçamento entre os cards */
     }
     .card {
         padding: 15px;
         border-radius: 10px;
-        background-color: #f0f2f6;
+        background-color: #f0f2f6; /* Cor de fundo do card */
         text-align: center;
         box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-        flex: 1 1 auto;
-        min-width: 150px;
+        flex: 1 1 auto; /* Faz os cards terem tamanhos flexíveis */
+        min-width: 150px; /* Define um tamanho mínimo para cada card */
     }
     .card h3 {
         margin-bottom: 5px;
@@ -233,10 +231,15 @@ def criar_cards(ids_selecionados=None):
     """, unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
+    
+# Função para obter o filtro de "invadindo"
+def get_invadindo_filtro(value):
+    return value
+
+# Opções para o filtro de "invadindo"
+opcoes_invadindo = ["Todos"] + sorted(gdf_sigef["invadindo"].unique().tolist())
 
 # Criar gráficos
-gdf_sigef = gdf_sigef.fillna("Desconhecido")
-
 bar_fig = px.bar(
     gdf_cnuc,
     x='nome_uc',
@@ -251,7 +254,7 @@ bar_fig = px.bar(
 )
 bar_fig.update_layout(
     legend_title_text='Métricas',
-    height=500,
+    height=500,  # Aumentar a altura do gráfico de barras
     margin={"r": 10, "t": 50, "l": 10, "b": 10},
     title_font=dict(size=22),
     title='Contagem das Áreas de Proteção'
@@ -267,7 +270,7 @@ pie_fig = px.pie(
 pie_fig.update_traces(textposition='inside', textinfo='percent+label')
 pie_fig.update_layout(
     font_size=14,
-    height=500,
+    height=500,  # Aumentar a altura do gráfico de pizza
     margin={"r": 10, "t": 50, "l": 10, "b": 10},
     title_font=dict(size=22),
 )
@@ -275,13 +278,18 @@ pie_fig.update_layout(
 # Título do dashboard
 st.title("Dashboard de Monitoramento")
 
+# Seleção da área no sidebar
+invadindo_opcao = st.sidebar.selectbox("Selecione a área (invadindo)", opcoes_invadindo)
+
 # Layout em duas colunas
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([2, 1])  # Ajuste a proporção das colunas
 
 # Coluna 1: Mapa e cards
 with col1:
-    fig = criar_figura()
+    # Mostrar o mapa
+    fig = criar_figura(invadindo_opcao=invadindo_opcao)
     st.plotly_chart(fig, use_container_width=True)
+    # Mostrar os cards
     criar_cards()
 
 # Coluna 2: Gráficos
