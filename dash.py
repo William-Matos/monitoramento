@@ -56,7 +56,7 @@ colunas_ocorrencias = ["Áreas de conflitos", "Assassinatos", "Conflitos por Ter
 df_csv["total_ocorrencias"] = df_csv[colunas_ocorrencias].sum(axis=1)
 
 # Função para criar o mapa
-def criar_figura(ids_selecionados=None):
+def criar_figura(ids_selecionados=None, invadindo_opcao=None):
     fig = px.choropleth_mapbox(
         gdf_cnuc,
         geojson=gdf_cnuc.__geo_interface__,
