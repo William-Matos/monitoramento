@@ -256,7 +256,7 @@ def get_invadindo_filtro(value):
     return value
 
 # Opções para o filtro de "invadindo"
-opcoes_invadindo = ["Todos"] + sorted(gdf_sigef["invadindo"].unique().tolist())
+# opcoes_invadindo = ["Todos"] + sorted(gdf_sigef["invadindo"].unique().tolist())
 
 # Criar gráficos
 bar_fig = px.bar(
