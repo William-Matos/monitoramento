@@ -2,3 +2,4 @@ geopandas
 plotly
 pandas
 streamlit
+shapely
