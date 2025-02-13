@@ -251,7 +251,8 @@ if 'nome_uc' in gdf_cnuc.columns:
         title='Contagem das Áreas de Proteção'
     )
 else:
-    continue
+    st.error("A coluna 'nome_uc' não está presente no DataFrame.")
+    
 bar_fig.update_layout(
     legend_title_text='Métricas',
     height=500,
