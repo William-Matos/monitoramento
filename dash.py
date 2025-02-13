@@ -33,14 +33,14 @@ def carregar_shapefile(caminho, calcular_percentuais=True):
     return gdf
 
 # Caminhos dos arquivos
-caminho_shapefile_cnuc = r'C:\Users\wwrm_\Desktop\Projetos\exec\cnuc.shp'
-caminho_shapefile_sigef = r'C:\Users\wwrm_\Desktop\Projetos\exec\sigef.shp'
-caminho_csv = r'C:\Users\wwrm_\Desktop\Projetos\exec\CPT-PA-count.csv'
+# caminho_shapefile_cnuc = r'C:\Users\wwrm_\Desktop\Projetos\exec\cnuc.shp'
+# caminho_shapefile_sigef = r'C:\Users\wwrm_\Desktop\Projetos\exec\sigef.shp'
+# caminho_csv = r'C:\Users\wwrm_\Desktop\Projetos\exec\CPT-PA-count.csv'
 
 # Carregar dados
-gdf_cnuc = carregar_shapefile(caminho_shapefile_cnuc)
-gdf_sigef = carregar_shapefile(caminho_shapefile_sigef, calcular_percentuais=False)
-df_csv = pd.read_csv(caminho_csv)
+gdf_cnuc = carregar_shapefile('cnuc.shp')
+gdf_sigef = carregar_shapefile('sigef.shp', calcular_percentuais=False)
+df_csv = pd.read_csv('CPT-PA-count.csv')
 gdf_cnuc["base"] = "cnuc"
 gdf_sigef["base"] = "sigef"
 
