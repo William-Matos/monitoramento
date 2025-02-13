@@ -3,6 +3,7 @@ import geopandas as gpd
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import os
 
 # Função para carregar shapefile
 def carregar_shapefile(caminho, calcular_percentuais=True):
@@ -33,9 +34,15 @@ def carregar_shapefile(caminho, calcular_percentuais=True):
     return gdf
 
 # Carregar dados
-gdf_cnuc = carregar_shapefile('cnuc.shp')
-gdf_sigef = carregar_shapefile('sigef.shp', calcular_percentuais=False)
-df_csv = pd.read_csv('CPT-PA-count.csv')
+caminho_cnuc = os.path.join(os.path.dirname(__file__), 'cnuc.shp')
+caminho_sigef = os.path.join(os.path.dirname(__file__), 'sigef.shp')
+caminho_csv = os.path.join(os.path.dirname(__file__), 'CPT-PA-count.csv')
+
+# Carregar os arquivos
+gdf_cnuc = carregar_shapefile(caminho_cnuc)
+gdf_sigef = carregar_shapefile(caminho_sigef, calcular_percentuais=False)
+df_csv = pd.read_csv(caminho_csv)
+
 gdf_cnuc["base"] = "cnuc"
 gdf_sigef["base"] = "sigef"
 
