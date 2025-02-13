@@ -293,9 +293,10 @@ pie_fig.update_layout(
     title_font=dict(size=22),
 )
 
+# wide mode 
+st.set_page_config(layout='wide')
 # Título do dashboard
 st.title("Dashboard de Monitoramento")
-st.set_page_config(layout='wide')
 # Seleção da área no sidebar
 
 invadindo_opcao = st.sidebar.selectbox("Selecione a área (invadindo)", opcoes_invadindo)
