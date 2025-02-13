@@ -230,18 +230,28 @@ def criar_cards(ids_selecionados=None):
 # Criar gráficos
 gdf_sigef = gdf_sigef.fillna("Desconhecido")
 
-bar_fig = px.bar(
-    gdf_cnuc,
-    x='nome_uc',
-    y=['alerta_km2', 'sigef_km2', 'area_km2'],
-    labels={'value': "Contagens", "nome_uc": "Nome UC"},
-    barmode="group",
-    color_discrete_map={
-        "alerta_km2": px.colors.qualitative.Pastel[0],
-        "sigef_km2": px.colors.qualitative.Pastel[1],
-        "area_km2": px.colors.qualitative.Pastel[2]
-    }
-)
+if 'nome_uc' in gdf_cnuc.columns:
+    bar_fig = px.bar(
+        gdf_cnuc,
+        x='nome_uc',
+        y=['alerta_km2', 'sigef_km2', 'area_km2'],
+        labels={'value': "Contagens", "nome_uc": "Nome UC"},
+        barmode="group",
+        color_discrete_map={
+            "alerta_km2": px.colors.qualitative.Pastel[0],
+            "sigef_km2": px.colors.qualitative.Pastel[1],
+            "area_km2": px.colors.qualitative.Pastel[2]
+        }
+    )
+    bar_fig.update_layout(
+        legend_title_text='Métricas',
+        height=500,
+        margin={"r": 10, "t": 50, "l": 10, "b": 10},
+        title_font=dict(size=22),
+        title='Contagem das Áreas de Proteção'
+    )
+else:
+    continue
 bar_fig.update_layout(
     legend_title_text='Métricas',
     height=500,
