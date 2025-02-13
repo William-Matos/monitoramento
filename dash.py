@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 # Função para carregar shapefile
 def carregar_shapefile(caminho, calcular_percentuais=True):
     gdf = gpd.read_file(caminho)
-    gdf["geometry"] = gdf["geometry"].apply(lambda geom: geom.buffer(0) if not geom.is_valid else geom
+    gdf["geometry"] = gdf["geometry"].apply(lambda geom: geom.buffer(0) if not geom.is_valid else geom)
     gdf = gdf[gdf["geometry"].notnull() & gdf["geometry"].is_valid]
     gdf_proj = gdf.to_crs("EPSG:31983")
     gdf_proj["area_calc_km2"] = gdf_proj.geometry.area / 1e6
